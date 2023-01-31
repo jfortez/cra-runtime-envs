@@ -3,25 +3,23 @@ function Get-VariablesFromData {
     [string[]]$data
   )
 
-  $result = ''
+  $result = @()
+
   foreach ($line in $data) {
    if ($line -match '.*:\s*".*"') {
       $match = [regex]::Match($line, '(.*):\s*"(.*)"')
       $key = $match.Groups[1].Value.Trim().Replace('"', '')
       $value = $match.Groups[2].Value.Trim()
-      $result+= $key+':'+'"'+$value+'", '
-      # $result += '$env:' + $key + '=' + '"' + $value + '"' + '; '
+      $result+= $key+':'+$value
+      
     }
     if ($line -match '.*=".*"') {
       $match = [regex]::Match($line, '(.*)="(.*)"')
       $key = $match.Groups[1].Value.Trim().Replace('"', '')
       $value = $match.Groups[2].Value.Trim().Replace('"', '')
-      $result+= $key+':'+'"'+$value+'", '
-      # $result += '$env:' + $key + '=' + '"' + $value + '"' + '; '
+      $result+= $key+':'+$value
     }
   }
-
-  $result = $result.Trim()
   return $result
 }
 
@@ -38,23 +36,40 @@ $varsContent = $varsContent -replace '\n', ','
 $varsArray = $varsContent.Split(',')
 
 
-$oldVars = Get-VariablesFromData -data $envArray
+$oldVars = Get-VariablesFromData -data $envArray 
 
 $newVars = Get-VariablesFromData -data $varsArray
 
 
-# concat variables $newVars + $oldVars
-$vars = $newVars + ' ' + $oldVars
-
-# remove repeat variables
-$uniqueVars = $vars -split ', ' | Select-Object -Unique
-$uniqueVars = $uniqueVars -join ', '
+#remove duplicates and old values and concat in one variable
 
 
-#remove variables that doesn't match starting with "REACT_APP_[VAR]=[VALUE]"
-$allowedVars = $uniqueVars -split ', ' | Where-Object { $_ -match 'REACT_APP_.*' } 
+$result = @{}
+foreach ($nv in $newVars) {
+  $nvSplit = $nv -split ':', 2
+  if (!$result.ContainsKey($nvSplit[0]) -or $result[$nvSplit[0]] -eq $nvSplit[1]) {
+    $result[$nvSplit[0]] = $nvSplit[1]
+  }
+}
+
+foreach ($ov in $oldVars) {
+  $ovSplit = $ov -split ':', 2
+  if (!$result.ContainsKey($ovSplit[0]) -or $result[$ovSplit[0]] -eq $ovSplit[1]) {
+    $result[$ovSplit[0]] = $ovSplit[1]
+  }
+}
+
+$resultString = $result.GetEnumerator() | 
+                ForEach-Object { '{0}:"{1}"' -f $_.Key, $_.Value }
+
+# convert resultString to string
+$variables = $resultString -join ', '
+
+# #remove variables that doesn't match starting with "REACT_APP_[VAR]=[VALUE]"
+$allowedVars = $variables -split ', ' | Where-Object { $_ -match 'REACT_APP_.*' } 
 $allowedVars = $allowedVars -join ', '
 
+$allowedVars
 
 # remove env.js and re-create env.js
 
