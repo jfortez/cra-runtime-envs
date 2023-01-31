@@ -1,6 +1,8 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect } from "react";
 import { Link, Routes, Route, Outlet } from "react-router-dom";
 import { env } from "./env";
+
 const Links = () => {
   return (
     <ul
@@ -34,8 +36,16 @@ const Links = () => {
     </ul>
   );
 };
-console.log(env);
 const App = () => {
+  useEffect(() => {
+    const post = async () => {
+      const api = env.REACT_APP_ALTENATIVE ?? env.REACT_APP_INITIAL_API;
+      const t = await axios.get(api).then((res) => res.data);
+      console.log(t);
+    };
+    post();
+  }, []);
+  console.log(env);
   return (
     <Routes>
       <Route

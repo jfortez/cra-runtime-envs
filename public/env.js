@@ -1,4 +1,3 @@
 window.env = {
-  "REACT_APP_TAKITO": "SOY UN BUEN TAKO",
-  "REACT_APP_TEST": "123"
-}
+  REACT_APP_INITIAL_API: "https://jsonplaceholder.typicode.com/posts",
+};

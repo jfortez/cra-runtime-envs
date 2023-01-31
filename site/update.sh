@@ -11,7 +11,7 @@ remove_quotes_from_vars() {
         if [[ $var == *"\""* ]]; then
             var="$(echo $var | sed 's/\"//g')"
         fi
-        result+="$var=$val "
+        result+="$var$val "
     done
     echo $result
 }
@@ -24,11 +24,11 @@ saved_vars2=$(remove_quotes_from_vars "$saved_vars")
 
 new_vars=$(grep "^REACT_APP_" vars.txt  )
 
-new_env_vars=$(echo $saved_vars2 $new_vars | tr ' ' '\n' |  uniq | tr '\n' ' '  )
+new_env_vars=$(echo $saved_vars $new_vars | tr ' ' '\n' |  uniq | tr '\n' ' '  )
 
 
 # execute command 
 
-# sleep 1
+sleep 1
 
 eval "$new_env_vars npx react-inject-env set -d ./ && rm -rf build"
