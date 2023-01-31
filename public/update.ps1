@@ -64,7 +64,7 @@ $envContent | Out-File -FilePath .\env.js -Encoding UTF8 -Force
 # show message like: env.js updated, { $allowedVars }
 Write-Output "envs UPDATED =  { $allowedVars }"
 
-
+pause
 
 
 
