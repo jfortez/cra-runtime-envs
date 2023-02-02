@@ -1,3 +1,3 @@
 import { env } from "./env";
 
-export const BASENAME = env.REACT_APP_BASENAME ?? "nuevaruta";
+export const BASENAME = env.REACT_APP_BASENAME ?? "sub-site";
